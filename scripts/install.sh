@@ -4,6 +4,7 @@
 #   ./scripts/install.sh               instalación completa
 #   ./scripts/install.sh --no-airplay  sin receptor AirPlay
 #   ./scripts/install.sh --no-spotify-connect
+#   ./scripts/install.sh --keep-resolution   no forzar 1080p en la RPi 4
 #
 # Ejecutar como el usuario normal (no root); pedirá sudo cuando haga falta.
 set -euo pipefail
@@ -12,10 +13,12 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 ADDONS_DIR="$HOME/rpitvbox-addons"
 WANT_AIRPLAY=1
 WANT_SPOTIFY_CONNECT=1
+FORCE_1080P=1
 for arg in "$@"; do
     case "$arg" in
         --no-airplay) WANT_AIRPLAY=0 ;;
         --no-spotify-connect) WANT_SPOTIFY_CONNECT=0 ;;
+        --keep-resolution) FORCE_1080P=0 ;;
         *) echo "Opción desconocida: $arg"; exit 1 ;;
     esac
 done
@@ -106,6 +109,22 @@ if [ "$WANT_AIRPLAY" -eq 1 ]; then
     step "AirPlay (shairport-sync): envía Apple Music desde el iPhone"
     sudo sed -E -i '0,/^(\/\/)?\s*name = /s//\tname = "RPi TV"; \/\/ /' /etc/shairport-sync.conf || true
     sudo systemctl enable --now shairport-sync || warn "No se pudo arrancar shairport-sync"
+fi
+
+# ---------------------------------------------------------------------------
+MODEL="$(tr -d '\0' < /proc/device-tree/model 2>/dev/null || true)"
+if [ "$FORCE_1080P" -eq 1 ] && [[ "$MODEL" == *"Raspberry Pi 4"* ]]; then
+    step "RPi 4 + TV 4K: salida HDMI fija a 1080p60 (más fluido)"
+    CMDLINE=/boot/firmware/cmdline.txt
+    [ -f "$CMDLINE" ] || CMDLINE=/boot/cmdline.txt
+    if grep -q 'video=HDMI-A-1:' "$CMDLINE"; then
+        echo "  ya había una resolución configurada en $CMDLINE, no la toco"
+    else
+        sudo cp "$CMDLINE" "$CMDLINE.rpitvbox.bak"
+        # cmdline.txt es una sola línea: añadimos el parámetro al final.
+        sudo sed -i '1 s/$/ video=HDMI-A-1:1920x1080@60/' "$CMDLINE"
+        echo "  añadido video=HDMI-A-1:1920x1080@60 (copia en $CMDLINE.rpitvbox.bak)"
+    fi
 fi
 
 # ---------------------------------------------------------------------------

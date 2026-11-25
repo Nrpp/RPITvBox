@@ -57,6 +57,37 @@ reproducen con el mismo DRM (Widevine) que usan los navegadores.
 - Tarjeta microSD de 32 GB o más (clase A2) y fuente oficial.
 - TV con HDMI-CEC (Anynet+ en Samsung, SimpLink en LG, Bravia Sync en Sony…) o un mando Bluetooth / "air mouse" USB.
 
+## Configuración para Raspberry Pi 4 + TV Sony (Google TV)
+
+**En la Raspberry Pi 4**
+- Conecta el cable al puerto **HDMI 0** (el micro-HDMI más cercano a la toma USB-C de alimentación).
+- Usa la fuente oficial de 5 V / 3 A y un disipador o carcasa con ventilador: decodificar vídeo calienta la Pi 4.
+- El instalador fija la salida a **1080p60** (con `--keep-resolution` no lo hace). En 4K el menú y Kodi van a tirones en la Pi 4, y Netflix/Prime no pasan de 1080p aquí; la tele Sony reescala muy bien.
+
+**En la TV Sony** (los nombres cambian un poco según el modelo)
+1. *Ajustes → Canales y entradas → Entradas externas → Configuración de BRAVIA Sync*.
+2. Activa **Control de BRAVIA Sync** (es el nombre de Sony para HDMI-CEC).
+3. Activa **Cambio automático de entrada**: al encender la RPi la tele cambia sola a su entrada.
+4. Si aparece **Teclas de control del dispositivo**, ponla en *Todas* o *Teclas de menú*.
+
+**Con el mando de Sony**
+| Botón | Qué hace |
+|---|---|
+| Flechas, OK | Se envían a la RPi: mueven el menú y Kodi. |
+| Atrás | Atrás en la RPi. **Mantener 2 s** = volver al menú de RPi TV. |
+| Inicio (casita) | **Lo captura la propia tele** y te lleva a Google TV; no llega a la RPi. Por eso existe "mantener Atrás". |
+| Botones Netflix / Prime / YouTube | Abren las apps **de la tele**, no las de la RPi. |
+
+**En Kodi (una vez)**: *Ajustes → Sistema → Entrada → Periféricos → CEC Adapter*:
+- *Dispositivos a apagar al salir de Kodi* → **Ninguno**.
+- *Enviar "inactive source" al apagar* → **No**.
+
+Así, al salir de Netflix/Prime la tele no salta a Google TV. Aun así, el lanzador vuelve a reclamar
+el mando y la entrada HDMI cada vez que se cierra Kodi (`scripts/cec-setup.sh --active`).
+
+> Nota honesta: tu Sony ya trae Netflix, Prime Video, Spotify y Apple Music oficiales con 4K/HDR.
+> La RPi aporta Kodi, AirPlay y un sistema tuyo que puedes modificar; para ver Netflix en 4K, la app de la tele es mejor.
+
 ## Instalación
 
 1. Graba **Raspberry Pi OS (64-bit) con escritorio** con Raspberry Pi Imager.
@@ -68,7 +99,7 @@ reproducen con el mismo DRM (Widevine) que usan los navegadores.
    ./scripts/install.sh
    ```
 
-   Opciones: `--no-airplay`, `--no-spotify-connect`.
+   Opciones: `--no-airplay`, `--no-spotify-connect`, `--keep-resolution`.
 
 3. Activa el inicio de sesión automático:
    `sudo raspi-config` → *System Options* → *Boot / Auto Login* → *Desktop Autologin*.

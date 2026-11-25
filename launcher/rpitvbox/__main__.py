@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 import signal
+import subprocess
 import sys
 from pathlib import Path
 
@@ -15,6 +16,14 @@ from .launcher import AppLauncher
 from .system import SystemActions
 
 QML_DIR = Path(__file__).resolve().parent.parent / "qml"
+CEC_SETUP = Path(__file__).resolve().parents[2] / "scripts" / "cec-setup.sh"
+
+
+def reclaim_cec() -> None:
+    """Al cerrar Kodi, recupera el mando de la TV y la entrada HDMI."""
+    if CEC_SETUP.exists() and os.path.exists("/dev/cec0"):
+        subprocess.Popen([str(CEC_SETUP), "--active"],
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 def main() -> int:
@@ -40,6 +49,7 @@ def main() -> int:
     root = engine.rootObjects()[0]
     home.homePressed.connect(launcher.closeRunning)
     launcher.appFinished.connect(lambda _id: root.bringToFront())
+    launcher.appFinished.connect(lambda _id: reclaim_cec())
     home.start()
 
     rc = app.exec()

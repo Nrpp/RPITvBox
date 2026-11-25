@@ -41,6 +41,19 @@ Window {
         toastTimer.restart()
     }
 
+    // Mandos HDMI-CEC: el kernel envía KEY_OK (352) y KEY_EXIT (174), que en
+    // Wayland pueden llegar sin tecla Qt asignada. Se reconocen por código (evdev + 8).
+    function isSelect(event) {
+        return event.key === Qt.Key_Return || event.key === Qt.Key_Enter
+            || event.key === Qt.Key_Select || event.key === Qt.Key_Space
+            || event.nativeScanCode === 352 + 8
+    }
+    function isBack(event) {
+        return event.key === Qt.Key_Escape || event.key === Qt.Key_Back
+            || event.key === Qt.Key_Backspace || event.key === Qt.Key_Exit
+            || event.nativeScanCode === 174 + 8
+    }
+
     function activate() {
         if (launcher.runningApp !== "")
             return
@@ -185,6 +198,7 @@ Window {
         Keys.onPressed: function(event) {
             if (confirm.visible) { confirm.handleKey(event); return }
             if (launcher.runningApp !== "") { event.accepted = true; return }
+            if (isSelect(event)) { activate(); event.accepted = true; return }
             switch (event.key) {
             case Qt.Key_Left:
                 if (row === 0) appIndex = Math.max(0, appIndex - 1)
@@ -196,11 +210,6 @@ Window {
                 break
             case Qt.Key_Up:   row = 0; break
             case Qt.Key_Down: row = 1; break
-            case Qt.Key_Return:
-            case Qt.Key_Enter:
-            case Qt.Key_Select:
-            case Qt.Key_Space:
-                activate(); break
             case Qt.Key_HomePage:
             case Qt.Key_Home:
                 row = 0; appIndex = 0; break
@@ -228,7 +237,7 @@ Window {
             }
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: "Botón Inicio (o mantener Atrás) para volver al menú"
+                text: "Mantén pulsado Atrás 2 s (o el botón Inicio de un mando Bluetooth) para volver al menú"
                 color: "#aab3c2"
                 font.pixelSize: 30 * s
             }
@@ -247,8 +256,8 @@ Window {
         function handleKey(event) {
             event.accepted = true
             if (event.key === Qt.Key_Left || event.key === Qt.Key_Right) choice = 1 - choice
-            else if (event.key === Qt.Key_Escape || event.key === Qt.Key_Back || event.key === Qt.Key_Backspace) action = ""
-            else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Select) {
+            else if (win.isBack(event)) action = ""
+            else if (win.isSelect(event)) {
                 if (choice === 0) { if (action === "reboot") system.reboot(); else system.shutdown() }
                 action = ""
             }
