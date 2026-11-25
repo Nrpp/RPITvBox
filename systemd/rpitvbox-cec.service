@@ -1,0 +1,11 @@
+[Unit]
+Description=RPi TV Box - registrar la RPi en HDMI-CEC (mando de la TV)
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=@ROOT@/scripts/cec-setup.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

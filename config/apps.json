@@ -1,0 +1,50 @@
+{
+  "_comment": "Apps del menú. type: kodi | kodi-addon | command. check: binario que debe existir. hint: texto bajo el título. install_hint: texto si no está instalada.",
+  "apps": [
+    {
+      "id": "netflix",
+      "name": "Netflix",
+      "color": "#B20710",
+      "type": "kodi-addon",
+      "addon": "plugin.video.netflix"
+    },
+    {
+      "id": "primevideo",
+      "name": "Prime Video",
+      "color": "#0F79AF",
+      "type": "kodi-addon",
+      "addon": "plugin.video.amazon-test"
+    },
+    {
+      "id": "spotify",
+      "name": "Spotify",
+      "color": "#1DB954",
+      "type": "kodi-addon",
+      "addon": "plugin.audio.spotify",
+      "hint": "También aparece como altavoz Spotify Connect en tu móvil."
+    },
+    {
+      "id": "applemusic",
+      "name": "Apple Music",
+      "color": "#FA2D48",
+      "type": "command",
+      "command": ["sidra"],
+      "check": "sidra",
+      "hint": "Cliente de Apple Music no oficial.",
+      "install_hint": "No hay app oficial para la RPi. Envía la música por AirPlay desde el iPhone (la RPi aparece como 'RPi TV') o instala Sidra: sudo snap install sidra"
+    },
+    {
+      "id": "youtube",
+      "name": "YouTube",
+      "color": "#CC0000",
+      "type": "kodi-addon",
+      "addon": "plugin.video.youtube"
+    },
+    {
+      "id": "kodi",
+      "name": "Kodi",
+      "color": "#17B2E7",
+      "type": "kodi"
+    }
+  ]
+}
