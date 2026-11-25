@@ -1,0 +1,8 @@
+<!-- Dentro de Kodi, el botón "Inicio" del mando cierra Kodi y vuelve al menú de RPi TV Box. -->
+<keymap>
+  <global>
+    <keyboard>
+      <browser_home>Quit</browser_home>
+    </keyboard>
+  </global>
+</keymap>
