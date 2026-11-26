@@ -3,7 +3,7 @@
 set -u
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PY="$ROOT/.venv/bin/python"
-[ -x "$PY" ] || PY=python3
+[ -x "$PY" ] || PY=/usr/bin/python3
 
 cd "$ROOT/launcher"
 while true; do

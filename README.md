@@ -169,7 +169,7 @@ Tipos:
 ## Probar en un PC
 
 ```bash
-python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt evdev
 cd launcher && RPITVBOX_WINDOWED=1 ../.venv/bin/python -m rpitvbox
 ```
 

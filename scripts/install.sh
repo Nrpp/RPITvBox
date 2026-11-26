@@ -46,9 +46,19 @@ fi
 
 # ---------------------------------------------------------------------------
 step "Entorno Python del lanzador (.venv con PySide6)"
-python3 -m venv --system-site-packages "$ROOT/.venv"
-"$ROOT/.venv/bin/pip" install --upgrade pip
-"$ROOT/.venv/bin/pip" install -r "$ROOT/requirements.txt"
+# Siempre el Python del sistema: es el que ve los paquetes de apt (python3-evdev).
+# Un python3 de Homebrew/pyenv/conda en el PATH no los ve y obliga a compilar.
+SYS_PY=/usr/bin/python3
+if [ -f "$ROOT/.venv/pyvenv.cfg" ] && ! grep -q '^home = /usr/bin$' "$ROOT/.venv/pyvenv.cfg"; then
+    echo "  el .venv existente usa otro Python ($(grep '^home' "$ROOT/.venv/pyvenv.cfg")), se recrea"
+    rm -rf "$ROOT/.venv"
+fi
+"$SYS_PY" -m venv --system-site-packages "$ROOT/.venv"
+"$ROOT/.venv/bin/python" -m pip install --upgrade pip
+"$ROOT/.venv/bin/python" -m pip install -r "$ROOT/requirements.txt"
+if ! "$ROOT/.venv/bin/python" -c "import evdev" 2>/dev/null; then
+    warn "python3-evdev no disponible: el botón Inicio global no funcionará (el resto sí)"
+fi
 
 # ---------------------------------------------------------------------------
 step "Permisos para leer el mando (grupo input)"
