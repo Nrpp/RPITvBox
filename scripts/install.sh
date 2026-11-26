@@ -5,6 +5,7 @@
 #   ./scripts/install.sh --no-airplay  sin receptor AirPlay
 #   ./scripts/install.sh --no-spotify-connect
 #   ./scripts/install.sh --keep-resolution   no forzar 1080p en la RPi 4
+#   ./scripts/install.sh --no-autostart      no abrir el menú solo al encender
 #
 # Ejecutar como el usuario normal (no root); pedirá sudo cuando haga falta.
 set -euo pipefail
@@ -14,11 +15,13 @@ ADDONS_DIR="$HOME/rpitvbox-addons"
 WANT_AIRPLAY=1
 WANT_SPOTIFY_CONNECT=1
 FORCE_1080P=1
+WANT_AUTOSTART=1
 for arg in "$@"; do
     case "$arg" in
         --no-airplay) WANT_AIRPLAY=0 ;;
         --no-spotify-connect) WANT_SPOTIFY_CONNECT=0 ;;
         --keep-resolution) FORCE_1080P=0 ;;
+        --no-autostart) WANT_AUTOSTART=0 ;;
         *) echo "Opción desconocida: $arg"; exit 1 ;;
     esac
 done
@@ -128,14 +131,28 @@ if [ "$FORCE_1080P" -eq 1 ] && [[ "$MODEL" == *"Raspberry Pi 4"* ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-step "Arranque automático al iniciar sesión (labwc / Wayland)"
-AUTOSTART="$HOME/.config/labwc/autostart"
-mkdir -p "$(dirname "$AUTOSTART")"
-touch "$AUTOSTART"
-LINE="$ROOT/scripts/start.sh &"
-grep -qF "$ROOT/scripts/start.sh" "$AUTOSTART" || echo "$LINE" >> "$AUTOSTART"
-echo "  añadido a $AUTOSTART"
-echo "  Activa el inicio de sesión automático: sudo raspi-config > System > Boot / Auto login > Desktop Autologin"
+step "Acceso en el menú del escritorio"
+mkdir -p "$HOME/.local/share/applications"
+cat > "$HOME/.local/share/applications/rpitvbox.desktop" <<DESKTOP
+[Desktop Entry]
+Type=Application
+Name=RPi TV Box
+Comment=Menú de apps estilo TV
+Exec=$ROOT/scripts/start.sh
+Icon=video-display
+Categories=AudioVideo;
+DESKTOP
+echo "  Menú > Sonido y vídeo > RPi TV Box"
+
+step "Arranque automático al iniciar sesión"
+if [ "$WANT_AUTOSTART" -eq 1 ]; then
+    "$ROOT/scripts/autostart.sh" on
+    echo "  Para que sea como una caja de TV, activa también el inicio de sesión automático:"
+    echo "  sudo raspi-config > System Options > Boot / Auto Login > Desktop Autologin"
+else
+    "$ROOT/scripts/autostart.sh" off
+fi
+echo "  Cambiarlo cuando quieras: ./scripts/autostart.sh on | off"
 
 cat <<MSG
 

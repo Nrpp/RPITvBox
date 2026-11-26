@@ -99,11 +99,23 @@ el mando y la entrada HDMI cada vez que se cierra Kodi (`scripts/cec-setup.sh --
    ./scripts/install.sh
    ```
 
-   Opciones: `--no-airplay`, `--no-spotify-connect`, `--keep-resolution`.
+   Opciones: `--no-airplay`, `--no-spotify-connect`, `--keep-resolution`, `--no-autostart`.
 
-3. Activa el inicio de sesión automático:
+3. (Opcional) Activa el inicio de sesión automático para que funcione como una caja de TV:
    `sudo raspi-config` → *System Options* → *Boot / Auto Login* → *Desktop Autologin*.
 4. Reinicia (`sudo reboot`). La RPi arrancará directamente en el menú.
+
+### Abrirlo solo cuando quieras (sin arranque automático)
+
+```bash
+./scripts/autostart.sh off      # no se abre solo al encender
+./scripts/autostart.sh on       # volver a activarlo
+./scripts/autostart.sh status   # ver cómo está
+```
+
+Con el arranque automático desactivado, la RPi arranca en el escritorio normal y
+abres el menú desde *Menú → Sonido y vídeo → RPi TV Box*. Desde el propio menú,
+*Ajustes → Salir* lo cierra y vuelve al escritorio.
 
 ### Configurar los addons en Kodi (una sola vez)
 
@@ -173,6 +185,7 @@ launcher/qml/               interfaz (Main.qml, Tile.qml)
 launcher/rpitvbox/          lógica: lanzar apps, botón Inicio, sistema
 scripts/install.sh          instalador para la RPi
 scripts/start.sh            arranque del lanzador (con reinicio automático)
+scripts/autostart.sh        activar/desactivar que se abra solo al encender
 scripts/cec-setup.sh        registra la RPi en HDMI-CEC
 systemd/                    servicio CEC
 ```
