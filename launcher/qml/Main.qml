@@ -21,6 +21,7 @@ Window {
     readonly property var settingsModel: [
         { id: "refresh",  name: "Actualizar", glyph: "↻", color: "#3a4a63" },
         { id: "info",     name: "Información", glyph: "i",    color: "#3a4a63" },
+        { id: "quit",     name: "Salir",      glyph: "\u2190", color: "#3a4a63" },
         { id: "reboot",   name: "Reiniciar",  glyph: "⟳", color: "#5a4a2a" },
         { id: "shutdown", name: "Apagar",     glyph: "⏻", color: "#6a2a2a" }
     ]
@@ -63,6 +64,7 @@ Window {
             var id = settingsModel[settingIndex].id
             if (id === "refresh") { availabilityTick++; toast("Lista de apps actualizada") }
             else if (id === "info") toast(system.hostname() + "  ·  IP " + system.ipAddress())
+            else if (id === "quit") Qt.quit()  // vuelve al escritorio
             else confirm.ask(id)
         }
     }

@@ -54,6 +54,8 @@ def main() -> int:
 
     rc = app.exec()
     home.stop()
+    del root
+    del engine  # destruir la interfaz antes que los objetos Python que usa
     return rc
 
 
