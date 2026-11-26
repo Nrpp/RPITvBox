@@ -33,6 +33,17 @@ if [ "$(id -u)" -eq 0 ]; then
     echo "Ejecuta este script como tu usuario normal, no como root."; exit 1
 fi
 
+# Archivos de root dentro del proyecto (p. ej. tras usar sudo aquí) impiden
+# crear el .venv o actualizar con git. Mejor avisar antes de empezar.
+OWNED_BY_OTHER="$(find "$ROOT" ! -user "$(id -un)" -print -quit 2>/dev/null || true)"
+if [ -n "$OWNED_BY_OTHER" ]; then
+    echo "Hay archivos en $ROOT que no son de tu usuario (p. ej. $OWNED_BY_OTHER)."
+    echo "Arréglalo con:"
+    echo "  sudo chown -R $(id -un):$(id -gn) \"$ROOT\""
+    echo "y vuelve a ejecutar ./scripts/install.sh"
+    exit 1
+fi
+
 # ---------------------------------------------------------------------------
 step "Paquetes del sistema (Kodi, DRM, CEC, Python)"
 sudo apt-get update
